@@ -1,0 +1,12 @@
+replicaCount: 1
+revisionHistoryLimit: 2
+
+image:
+  repository: docker-hub-repository_name/mc-streaming-app-endpoints-staging
+  tag: latest
+
+serviceName: endpoints
+host: my_host_name
+
+ingress:
+  enabled: false

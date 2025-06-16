@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: endpoints
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: endpoints
+  template:
+    metadata:
+      labels:
+        app: endpoints
+    spec:
+      containers:
+        - name: endpoints
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 2
+            successThreshold: 1
+          env:
+            - name: TZ
+              value: "Asia/Tashkent"
+          envFrom:
+            - secretRef:
+                name: backend-secrets
+          volumeMounts:
+            - name: logs-volume
+              mountPath: /opt/docker/logs
+            - name: conf-volume
+              mountPath: /opt/docker/conf
+      volumes:
+        - name: logs-volume
+          emptyDir: { }
+        - name: conf-volume
+          emptyDir: { }
